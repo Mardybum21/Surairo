@@ -1,0 +1,8 @@
+{
+  "name": "SURARIO — La Patagonia, mejor descubierta",
+  "description": "SURARIO es una guía de viajes por la Patagonia argentina y chilena. Descubre destinos, alojamientos, excursiones, rutas e itinerarios personalizados para planificar tu próxima aventura.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

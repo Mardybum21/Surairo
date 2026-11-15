@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="none">
+  <!-- Background with rounded corners -->
+  <rect width="48" height="48" rx="10" fill="#142B1F" />
+  
+  <!-- Subtle back mountain peak (glacier blue) -->
+  <path d="M22 13L35 31H15L22 13Z" fill="#2E6F89" fill-opacity="0.5" />
+  
+  <!-- Front mountain ridge forming the top curve of 'S' -->
+  <path d="M14 17L26 31H8L14 17Z" fill="#25523B" fill-opacity="0.8" />
+  
+  <!-- Stylized 'S' winding trail through mountain pass -->
+  <path d="M19 14C25 14 31 17 31 22C31 27 18 25 18 31C18 35 24 36 30 35" 
+        stroke="#E2B176" 
+        stroke-width="3" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" />
+  
+  <!-- Mountain ridge crest highlight -->
+  <path d="M14 17L20 25L26 31" stroke="#9AD1D4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke-opacity="0.7" />
+  
+  <!-- Small summit accent dot -->
+  <circle cx="22" cy="11" r="1.5" fill="#E2B176" />
+</svg>

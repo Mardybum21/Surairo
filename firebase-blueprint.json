@@ -1,0 +1,101 @@
+{
+  "entities": {
+    "ProviderApplication": {
+      "title": "ProviderApplication",
+      "description": "Collaborator or tourism provider application to be listed on SURARIO",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "businessName": { "type": "string" },
+        "businessType": { "type": "string", "enum": ["hotel", "cabana", "hostal", "guia", "agencia", "transporte"] },
+        "destination": { "type": "string" },
+        "contactPerson": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phone": { "type": "string" },
+        "website": { "type": "string" },
+        "description": { "type": "string" },
+        "servicesOffered": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected", "archived"] },
+        "submittedAt": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["businessName", "businessType", "destination", "contactPerson", "email", "phone", "description"]
+    },
+    "Accommodation": {
+      "title": "Accommodation",
+      "description": "Patagonia stay, lodge, cabin, or hotel listing",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "destinationId": { "type": "string" },
+        "name": { "type": "string" },
+        "type": { "type": "string", "enum": ["hotel", "hosteria", "lodge", "cabana", "refugio", "domo"] },
+        "description": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "pricePerNight": { "type": "number" },
+        "currency": { "type": "string", "enum": ["USD", "EUR", "ARS", "CLP"] },
+        "image": { "type": "string" },
+        "amenities": { "type": "string" },
+        "amenitiesEn": { "type": "string" },
+        "externalBookingUrl": { "type": "string" },
+        "published": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "destinationId", "name", "type", "pricePerNight", "currency", "published"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "Patagonia tour, trekking excursion, navigation, or experience",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "destinationId": { "type": "string" },
+        "name": { "type": "string" },
+        "duration": { "type": "string" },
+        "durationEn": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["Baja", "Media", "Alta", "Exigente"] },
+        "price": { "type": "number" },
+        "currency": { "type": "string", "enum": ["USD", "EUR", "ARS", "CLP"] },
+        "description": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "image": { "type": "string" },
+        "includes": { "type": "string" },
+        "externalBookingUrl": { "type": "string" },
+        "published": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "destinationId", "name", "price", "currency", "published"]
+    },
+    "SiteSetting": {
+      "title": "SiteSetting",
+      "description": "Global settings for SURARIO portal, affiliate disclosures, and banner announcements",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "key": { "type": "string" },
+        "value": { "type": "string" },
+        "isPublic": { "type": "boolean" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["key", "isPublic"]
+    }
+  },
+  "firestore": {
+    "/provider_applications/{applicationId}": {
+      "schema": "ProviderApplication",
+      "description": "Tourism provider partner applications submitted by travelers or local business owners"
+    },
+    "/accommodations/{accommodationId}": {
+      "schema": "Accommodation",
+      "description": "Editorial accommodation listings and verified partner stays"
+    },
+    "/activities/{activityId}": {
+      "schema": "Activity",
+      "description": "Editorial guided tours, navigation routes, and outdoor excursions"
+    },
+    "/site_settings/{settingId}": {
+      "schema": "SiteSetting",
+      "description": "Global operational and editorial settings for SURARIO"
+    }
+  }
+}

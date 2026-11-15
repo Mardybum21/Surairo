@@ -1,0 +1,116 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper to check if caller is authenticated admin
+    // Strictly requires authenticated token, authorized email AND verified email status
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        (request.auth.token.email != null &&
+         request.auth.token.email.lower() == 'joansagales@gmail.com' &&
+         request.auth.token.email_verified == true) ||
+        (exists(/databases/$(database)/documents/admins/$(request.auth.uid)) &&
+         request.auth.token.email_verified == true)
+      );
+    }
+
+    function isValidId(docId) {
+      return docId is string && docId.size() > 0 && docId.size() <= 128 && docId.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Validation for provider applications (prevent spam / malformed payloads)
+    function isValidApplication(data) {
+      return data.keys().hasAll(['businessName', 'businessType', 'destination', 'contactPerson', 'email', 'phone', 'description'])
+        && data.businessName is string && data.businessName.size() >= 2 && data.businessName.size() <= 140
+        && data.businessType is string && data.businessType in ['hotel', 'cabana', 'hostal', 'guia', 'agencia', 'transporte', 'refugio', 'camping']
+        && data.destination is string && data.destination.size() >= 2 && data.destination.size() <= 120
+        && data.contactPerson is string && data.contactPerson.size() >= 2 && data.contactPerson.size() <= 120
+        && data.email is string && data.email.size() >= 5 && data.email.size() <= 150 && data.email.matches('.*@.*\\..*')
+        && data.phone is string && data.phone.size() >= 6 && data.phone.size() <= 40
+        && data.description is string && data.description.size() >= 10 && data.description.size() <= 3000
+        && (!('website' in data) || (data.website is string && data.website.size() <= 250))
+        && (!('servicesOffered' in data) || (data.servicesOffered is string && data.servicesOffered.size() <= 800))
+        && (!('status' in data) || (data.status is string && data.status in ['pending', 'approved', 'rejected', 'archived']))
+        && (!('id' in data) || (data.id is string && data.id.size() <= 128));
+    }
+
+    // Validation for accommodation records
+    function isValidAccommodation(data) {
+      return data.keys().hasAll(['id', 'destinationId', 'name', 'type'])
+        && data.id is string && data.id.size() <= 128
+        && data.destinationId is string && data.destinationId.size() <= 128
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 200
+        && data.type is string
+        && (!('pricePerNight' in data) || data.pricePerNight is number)
+        && (!('currency' in data) || (data.currency is string && data.currency in ['USD', 'EUR', 'ARS', 'CLP']))
+        && (!('published' in data) || data.published is bool);
+    }
+
+    // Validation for activity records
+    function isValidActivity(data) {
+      return (data.keys().hasAll(['id', 'destinationId', 'title']) || data.keys().hasAll(['id', 'destinationId', 'name']))
+        && data.id is string && data.id.size() <= 128
+        && data.destinationId is string && data.destinationId.size() <= 128
+        && (!('price' in data) || data.price is number)
+        && (!('currency' in data) || (data.currency is string && data.currency in ['USD', 'EUR', 'ARS', 'CLP']))
+        && (!('published' in data) || data.published is bool);
+    }
+
+    // Validation for site settings
+    function isValidSetting(data) {
+      return data.keys().hasAll(['key', 'isPublic'])
+        && data.key is string && data.key.size() >= 1 && data.key.size() <= 100
+        && data.isPublic is bool;
+    }
+
+    // Provider Applications
+    match /provider_applications/{applicationId} {
+      // Anyone can submit a valid application
+      allow create: if isValidId(applicationId) && isValidApplication(request.resource.data);
+      // Strictly restricted: only admin can read, list, update or delete
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Accommodations
+    match /accommodations/{accommodationId} {
+      // Public can read published items; admin can read drafts/archived
+      allow read: if (resource != null && resource.data.published == true) || isAdmin();
+      // Admin exclusive writes with validation
+      allow create, update: if isAdmin() && isValidAccommodation(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Activities / Experiences
+    match /activities/{activityId} {
+      // Public can read published items; admin can read drafts/archived
+      allow read: if (resource != null && resource.data.published == true) || isAdmin();
+      // Admin exclusive writes with validation
+      allow create, update: if isAdmin() && isValidActivity(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Site Settings
+    match /site_settings/{settingId} {
+      // Public can only read explicitly public settings
+      allow read: if (resource != null && resource.data.isPublic == true) || isAdmin();
+      // Admin exclusive writes with validation
+      allow create, update: if isAdmin() && isValidSetting(request.resource.data);
+      allow delete: if isAdmin();
+    }
+
+    // Admins collection (read-only for authenticated user to check their own doc)
+    match /admins/{adminUid} {
+      allow read: if isAuthenticated() && request.auth.uid == adminUid;
+      allow write: if false; // System managed only
+    }
+
+    // Catch-all: deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

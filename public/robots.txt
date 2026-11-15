@@ -1,0 +1,5 @@
+# robots.txt para SURARIO - Guía de viajes por la Patagonia
+User-agent: *
+Allow: /
+
+Sitemap: /sitemap.xml
